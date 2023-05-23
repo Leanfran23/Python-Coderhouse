@@ -1,45 +1,61 @@
-def registrar_usuario(database):
+def registrar_usuario(database_file):
     nombre = input("Ingrese el nombre de usuario: ")
     password = input("Ingrese la contraseña: ")
+    email = input("Ingrese el email")
+    telefono = input("Ingrese el telefono")
 
-    # Almacenamos la información en un diccionario
-    usuario = {
-        "nombre": nombre,
-        "password": password
-    }
+    #Abrir el archivo en modo de escritura
+    with open(database_file, "a") as file:
+        # Escribir nueva linea.
+        file.write(f"{nombre},{password},{email},{telefono}\n")
 
-    # Agregamos el usuario a la base de datos
-    database[nombre] = usuario
     print("Usuario registrado con éxito!")
 
 
-def mostrar_usuarios(database):
-    if len(database) == 0:
-        print("No hay usuarios registrados.")
-    else:
-        print("Usuarios registrados:")
-        for nombre, usuario in database.items():
-            print(f"Nombre: {nombre}")
-            print(f"Contraseña: {usuario['password']}")
-            print("-----------")
+def mostrar_usuarios(database_file):
+    # Abrir el archivo en modo de lectura
+    with open("database/db.txt", "r") as file:
+        # Leer todas las líneas del archivo
+        lines = file.readlines()
+
+        if len(lines) == 0:
+            print("No hay usuarios registrados.")
+        else:
+            print("Usuarios registrados:")
+            for line in lines:
+                # Separar el nombre de usuario y la contraseña por coma
+                nombre, password, email, telefono = line.strip().split(",")
+                print("------------------------------------------------")
+                print(f"Nombre: {nombre}")
+                print(f"Contraseña: {password}")
+                print(f"email: {email}")
+                print(f"telefono: {telefono}")
+                print("------------------------------------------------")
 
 
-def login(database):
+def login(database_file):
     nombre = input("Ingrese el nombre de usuario: ")
     password = input("Ingrese la contraseña: ")
+    email = input("Ingrese el email: ")
+    telefono = input("Ingrese el telefono: ")
+    # Abrir el archivo en modo de lectura
+    with open(database_file, "r") as file:
+        # Leer todas las líneas del txt
+        lines = file.readlines()
 
-    if nombre in database:
-        if password == database[nombre]['password']:
-            print("Inicio de sesión exitoso!")
-        else:
-            print("Contraseña incorrecta.")
-    else:
-        print("Usuario no encontrado.")
+        for line in lines:
+            # Separar el nombre de usuario y la contraseña por coma
+            usuario, contraseña = line.strip().split(",")
+
+            if nombre == usuario:
+                if password == contraseña:
+                    print("Inicio de sesión exitoso!")
+                    return
+
+        print("Usuario o contraseña incorrectos.")
 
 
-def menu():
-    database = {}  # Base de datos vacía
-
+def menu(database_file):
     while True:
         print("***** MENÚ *****")
         print("1. Registrar usuario")
@@ -50,16 +66,17 @@ def menu():
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
-            registrar_usuario(database)
+            registrar_usuario(database_file)
         elif opcion == "2":
-            mostrar_usuarios(database)
+            mostrar_usuarios(database_file)
         elif opcion == "3":
-            login(database)
+            login(database_file)
         elif opcion == "4":
             break
         else:
             print("Opción inválida. Intente nuevamente.")
 
-
+# Ruta del archivo de base de datos
+database_file = "database/db.txt"
 # Ejecutamos el programa
-menu()
+menu(database_file)
